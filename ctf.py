@@ -24,7 +24,7 @@ class CtfCmd(cmd.Cmd, object):
 
 def main():
     c = CtfCmd()
-    print 'Unlogic CTF tools', __VERSION__
+    print 'CTF tools', __VERSION__
     c.cmdloop()
 
 

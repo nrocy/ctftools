@@ -8,20 +8,35 @@ class Codecs(cmd.Cmd, object):
         self.prompt = 'codecs] '
         self.last_output = ''
 
+    def set_to_last(self, s):
+        if s == '_':
+            s = self.last_output
+        return s
+
     def do_b64(self, s):
         a = s.split()
         if not len(a) == 2:
             self.help_b64()
             return
 
+        s = self.set_to_last(a[1])
+
         if a[0] == 'enc':
-            self.last_output = a[1].encode('base64')
-            print self.last_output
+            try:
+                self.last_output = s.encode('base64')
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         elif a[0] == 'dec':
-            self.last_output = a[1].decode('base64')
-            print self.last_output
+            try:
+                self.last_output = s.decode('base64')
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         else:
-            print 'Unknown option:', a[0]
+            print 'Unknown command:', a[0]
 
     def help_b64(self):
         print 'Usage: b64 [dec|enc] <string>'
@@ -40,16 +55,29 @@ class Codecs(cmd.Cmd, object):
                 print 'Unable to open %s for reading' % a[1]
                 return
 
-            self.last_output = data.encode('base64')
-            print self.last_output
+            try:
+                self.last_output = data.encode('base64')
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         elif a[0] == 'dec':
+            if len(a) < 3:
+                self.help_b64b
+                return
+
+            s = self.set_to_last(a[1])
+            try:
+                data = s.decode('base64')
+            except Exception, e:
+                print e.message
+                return
+
             try:
                 with open(a[2], 'w') as fh:
-                    data = a[1].decode('base64')
                     fh.write(data)
             except IOError:
                 print 'Unable to open %s for writing' % a[2]
-                return
         else:
             print 'Unknown option:', a[0]
 
@@ -62,14 +90,23 @@ class Codecs(cmd.Cmd, object):
             self.help_r64()
             return
 
+        s = self.set_to_last(a[1])
+
         if a[0] == 'enc':
-            self.last_output = a[1].encode('rot13')
-            print self.last_output
+            try:
+                self.last_output = s.encode('rot13')
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         elif a[0] == 'dec':
-            self.last_output = a[1].decode('rot13')
-            print self.last_output
+            try:
+                self.last_output = s.decode('rot13')
+                print self.last_output
+            except Exception, e:
+                print e.message
         else:
-            print 'Unknown option:', a[0]
+            print 'Unknown command:', a[0]
 
     def help_r13(self):
         print 'Usage: r13 [dec|enc] <string>'
@@ -77,31 +114,62 @@ class Codecs(cmd.Cmd, object):
     def do_bin(self, s):
         a = s.split()
 
+        if len(a) < 2:
+            self.help_bin()
+            return
+
+        s = self.set_to_last(a[1])
+
         if a[0] == 'enc':
-            self.last_output = ' '.join(format(ord(c), 'b').zfill(8) for c in a[1])
-            print self.last_output
-            return
+            try:
+                self.last_output = ' '.join(format(ord(c), 'b').
+                                            zfill(8) for c in s)
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         elif a[0] == 'dec':
-            bin_str = ''.join(a[1:])
-            n = int(bin_str, 2)
-            self.last_output = binascii.unhexlify('%x' % n)
-            print self.last_output
-            return
+            try:
+                bin_str = ''.join(s[1:])
+                n = int(bin_str, 2)
+                self.last_output = binascii.unhexlify('%x' % n)
+                print self.last_output
+            except Exception, e:
+                print e.message
+
+        else:
+            print 'Unknown command:', a[0]
 
     def help_bin(self):
         print 'Usage: bin [dec|enc] <string>'
 
     def do_hex(self, s):
         a = s.split()
+        if len(a) < 2:
+            self.help_hex()
+            return
+
+        s = self.set_to_last(a[1])
 
         if a[0] == 'enc':
-            self.last_output = binascii.hexlify(a[1])
-            print self.last_output
-            return
+            try:
+                self.last_output = binascii.hexlify(s)
+                print self.last_output
+            except Exception, e:
+                print e.message
+
         elif a[0] == 'dec':
-            self.last_output = binascii.unhexlify(a[1])
-            print self.last_output
-            return
+            try:
+                self.last_output = binascii.unhexlify(s)
+                print self.last_output
+            except Exception, e:
+                print e.message
+
+    def help_hex(self):
+        print 'Usage: hex [dec|enc] <string>'
+
+    def do__(self, s):
+        print self.last_output
 
     def do_exit(self, s):
         return True
