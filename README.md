@@ -39,7 +39,7 @@ The `_` will always be replaced by the last output:
 TODO
 ----
 
-Lot's, so sit tight, or suggest some things. Right now some things that
+Lots, so sit tight, or suggest some things. Right now some things that
 are planned are:
 
 * HTTP header inspection
